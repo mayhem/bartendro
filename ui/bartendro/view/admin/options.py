@@ -13,7 +13,9 @@ from bartendro.model.version import DatabaseVersion
 def get_ip_address_from_interface(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
-        return socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, struct.pack('256s', ifname[:15]))[20:24])
+        packed_iface = struct.pack('256s', ifname.encode('utf_8'))
+        packed_addr = fcntl.ioctl(s.fileno(), 0x8915, packed_iface)[20:24]
+        return socket.inet_ntoa(packed_addr)
     except IOError:
         return "[none]"
 
