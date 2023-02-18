@@ -61,3 +61,11 @@ and fail. In the software only mode the bartendro UI will run an attempt to do e
 it can, short of actually communicating with the hardware. If you are running in
 software only mode, you do no need to run the bartendro_server.py program under sudo. Sudo
 rights are only needed to communicate with the hardware.
+
+Upgrade Existing DB
+-------------------
+
+For Bartendro software reboot (2023), use the following sqlite query to upgrade the DB
+for support of the new liquid level calculations:
+
+   alter table dispenser add column bottle_size INTEGER DEFAULT 0;
