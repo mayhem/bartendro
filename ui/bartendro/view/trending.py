@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 import time
 from bartendro import app, db
 from sqlalchemy import desc
 from flask import Flask, request, render_template
-from flask.ext.login import login_required
+from flask_login import login_required
 from bartendro.model.drink import Drink
 from bartendro.model.drink_log import DrinkLog
 from bartendro.model.booze import Booze
@@ -12,15 +11,17 @@ from bartendro.form.booze import BoozeForm
 
 DEFAULT_TIME = 12
 display_info = {
-    12 : 'Drinks poured in the last 12 hours.',
-    72 : 'Drinks poured in the last 3 days.',
-    168 : 'Drinks poured in the last week.',
-    0 : 'All drinks ever poured'
+    12: 'Drinks poured in the last 12 hours.',
+    72: 'Drinks poured in the last 3 days.',
+    168: 'Drinks poured in the last week.',
+    0: 'All drinks ever poured'
 }
+
 
 @app.route('/trending')
 def trending_drinks():
     return trending_drinks_detail(DEFAULT_TIME)
+
 
 @app.route('/trending/<int:hours>')
 def trending_drinks_detail(hours):
@@ -32,7 +33,7 @@ def trending_drinks_detail(hours):
             enddate = int(time.time())
         else:
             enddate = log.time
-    
+
         try:
             txt = display_info[hours]
         except IndexError:
@@ -44,7 +45,7 @@ def trending_drinks_detail(hours):
         else:
             begindate = 0
     else:
-	begindate = 0
+        begindate = 0
         enddate = 0
         txt = ""
 
@@ -75,9 +76,11 @@ def trending_drinks_detail(hours):
                                   ORDER BY count(drink_log.drink_id) desc;""")\
                  .params(begin=begindate, end=enddate).all()
 
-    return render_template("trending", top_drinks = top_drinks, options=app.options,
-                                       title="Trending drinks",
-                                       txt=txt,
-                                       total_number=total_number[0],
-                                       total_volume=total_volume[0],
-                                       hours=hours)
+    return render_template("trending",
+                           top_drinks=top_drinks,
+                           options=app.options,
+                           title="Trending drinks",
+                           txt=txt,
+                           total_number=total_number[0],
+                           total_volume=total_volume[0],
+                           hours=hours)

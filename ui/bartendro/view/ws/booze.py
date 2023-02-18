@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
 from bartendro import app, db
 from flask import Flask, request, jsonify
 from bartendro.model.drink import Drink
 from bartendro.model.booze import Booze
 from bartendro.form.booze import BoozeForm
+
 
 @app.route('/ws/booze/match/<str>')
 def ws_booze(request, str):

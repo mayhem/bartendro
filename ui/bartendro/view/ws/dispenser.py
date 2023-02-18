@@ -1,10 +1,9 @@
-# -*- coding: utf-8 -*-
 import logging
 from time import sleep
 from werkzeug.exceptions import ServiceUnavailable
 from bartendro import app, db, mixer
 from flask import Flask, request
-from flask.ext.login import current_user
+from flask_login import current_user
 from bartendro.model.drink import Drink
 from bartendro.model.booze import Booze
 from bartendro.model.dispenser import Dispenser
@@ -23,12 +22,14 @@ def ws_dispenser_on(disp):
 
     return run_dispenser(disp, True)
 
+
 @app.route('/ws/dispenser/<int:disp>/on/reverse')
 def ws_dispenser_reverse(disp):
     if app.options.must_login_to_dispense and not current_user.is_authenticated():
         return "login required"
 
     return run_dispenser(disp, False)
+
 
 def run_dispenser(disp, forward):
     if forward:
@@ -43,6 +44,7 @@ def run_dispenser(disp, forward):
 
     return err
 
+
 @app.route('/ws/dispenser/<int:disp>/off')
 def ws_dispenser_off(disp):
     if app.options.must_login_to_dispense and not current_user.is_authenticated():
@@ -53,9 +55,10 @@ def ws_dispenser_off(disp):
         err = "Failed to stop dispenser %d" % disp
         log.error(err)
 
-    app.driver.set_motor_direction(disp, MOTOR_DIRECTION_FORWARD) 
-        
+    app.driver.set_motor_direction(disp, MOTOR_DIRECTION_FORWARD)
+
     return err
+
 
 @app.route('/ws/dispenser/<int:disp>/test')
 def ws_dispenser_test(disp):
@@ -76,6 +79,7 @@ def ws_dispenser_test(disp):
 
     return ""
 
+
 @app.route('/ws/clean')
 def ws_dispenser_clean():
     if app.options.must_login_to_dispense and not current_user.is_authenticated():
@@ -86,14 +90,15 @@ def ws_dispenser_clean():
 
     try:
         app.mixer.clean()
-    except BartendroCantPourError, err:
+    except BartendroCantPourError as err:
         raise BadRequest(err)
-    except BartendroBrokenError, err:
+    except BartendroBrokenError as err:
         raise InternalServerError(err)
-    except BartendroBusyError, err:
+    except BartendroBusyError as err:
         raise ServiceUnavailable(err)
 
     return ""
+
 
 @app.route('/ws/clean/right')
 def ws_dispenser_clean_right():
@@ -105,13 +110,14 @@ def ws_dispenser_clean_right():
 
     try:
         app.mixer.clean_right()
-    except BartendroCantPourError, err:
+    except BartendroCantPourError as err:
         raise BadRequest(err)
-    except BartendroBrokenError, err:
+    except BartendroBrokenError as err:
         raise InternalServerError(err)
-    except BartendroBusyError, err:
+    except BartendroBusyError as err:
         raise ServiceUnavailable(err)
     return ""
+
 
 @app.route('/ws/clean/left')
 def ws_dispenser_clean_left():
@@ -123,11 +129,11 @@ def ws_dispenser_clean_left():
 
     try:
         app.mixer.clean_left()
-    except BartendroCantPourError, err:
+    except BartendroCantPourError as err:
         raise BadRequest(err)
-    except BartendroBrokenError, err:
+    except BartendroBrokenError as err:
         raise InternalServerError(err)
-    except BartendroBusyError, err:
+    except BartendroBusyError as err:
         raise ServiceUnavailable(err)
 
     return ""

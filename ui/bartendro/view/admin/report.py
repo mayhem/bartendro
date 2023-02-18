@@ -1,17 +1,18 @@
-# -*- coding: utf-8 -*-
 import time
 from bartendro import app, db
 from flask import Flask, request, render_template
-from flask.ext.login import login_required
+from flask_login import login_required
 from bartendro.model.drink import Drink
 from bartendro.model.booze import Booze
 from bartendro.model.booze_group import BoozeGroup
 from bartendro.form.booze import BoozeForm
 
+
 @app.route('/admin/report')
 @login_required
 def report_index():
     return render_template("admin/report", options=app.options, title="Top drinks report")
+
 
 @app.route('/admin/report/<begin>/<end>')
 @login_required
@@ -57,10 +58,11 @@ def report_view(begin, end):
                                   ORDER BY count(drink_log.drink_id) desc;""")\
                  .params(begin=begindate, end=enddate).all()
 
-    return render_template("admin/report", options=app.options,
-                                           top_drinks = top_drinks, 
-                                           title="Top drinks report",
-                                           total_number=total_number[0],
-                                           total_volume=total_volume[0],
-                                           begin=begin, 
-                                           end=end)
+    return render_template("admin/report",
+                           options=app.options,
+                           top_drinks=top_drinks,
+                           title="Top drinks report",
+                           total_number=total_number[0],
+                           total_volume=total_volume[0],
+                           begin=begin,
+                           end=end)

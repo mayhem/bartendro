@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import json
 import os
 import sqlite3
@@ -8,12 +7,13 @@ from tempfile import mktemp
 from sqlalchemy import asc, func
 from bartendro import app, db, mixer
 from flask import Flask, request
-from flask.ext.login import login_required, logout_user
+from flask_login import login_required, logout_user
 from werkzeug.exceptions import InternalServerError, BadRequest
 from bartendro.model.option import Option
 from bartendro.options import bartendro_options
 
 DB_BACKUP_DIR = '.db-backups'
+
 
 @app.route('/ws/options', methods=["POST", "GET"])
 @login_required
@@ -22,13 +22,13 @@ def ws_options():
         options = Option.query.order_by(asc(func.lower(Option.key)))
         data = {}
         for o in options:
-            try:    
+            try:
                 if isinstance(bartendro_options[o.key], int):
-                   value = int(o.value)
-                elif isinstance(bartendro_options[o.key], unicode):
-                   value = unicode(o.value)
+                    value = int(o.value)
+                elif isinstance(bartendro_options[o.key], str):
+                    value = str(o.value)
                 elif isinstance(bartendro_options[o.key], boolean):
-                   value = boolean(o.value)
+                    value = boolean(o.value)
                 else:
                     raise InternalServerError
             except KeyError:
@@ -36,7 +36,7 @@ def ws_options():
 
             data[o.key] = value
 
-        return json.dumps({ 'options' : data });
+        return json.dumps({'options': data})
 
     if request.method == 'POST':
         try:
@@ -60,9 +60,10 @@ def ws_options():
             reload = True
         except ImportError:
             reload = False
-        return json.dumps({ 'reload' : reload });
+        return json.dumps({'reload': reload})
 
     raise BadRequest
+
 
 @app.route('/ws/upload', methods=["POST"])
 @login_required
@@ -76,7 +77,7 @@ def ws_upload():
 
     try:
         con = sqlite3.connect(file_name)
-        cur = con.cursor()    
+        cur = con.cursor()
         cur.execute("SELECT * FROM dispenser")
     except sqlite3.DatabaseError:
         os.unlink(file_name)
@@ -84,18 +85,19 @@ def ws_upload():
 
     return json.dumps('{ "file_name": "%s" }' % file_name)
 
+
 @app.route('/ws/upload/confirm', methods=["POST"])
 @login_required
 def ws_upload_confirm():
     file_name = request.json['file_name']
-    print file_name
-    print "Move file '%s' into place." % file_name
+    print(file_name)
+    print("Move file '%s' into place." % file_name)
 
     if not os.path.exists(DB_BACKUP_DIR):
         try:
             os.mkdir(DB_BACKUP_DIR)
         except OSError:
-            return json.dumps({ 'error' : "Cannot create backup dir" })
+            return json.dumps({'error': "Cannot create backup dir"})
 
     # close the connection to the database to flush anything that might still be in a cache somewhere
     db.session.bind.dispose()
@@ -103,15 +105,15 @@ def ws_upload_confirm():
     try:
         shutil.move("bartendro.db", os.path.join(DB_BACKUP_DIR, "%d.db" % int(time())))
     except OSError:
-        return json.dumps({ 'error' : "Cannot backup old database" })
+        return json.dumps({'error': "Cannot backup old database"})
 
     try:
         shutil.move(file_name, "bartendro.db")
     except OSError:
-        return json.dumps({ 'error' : "Cannot backup old database" })
+        return json.dumps({'error': "Cannot backup old database"})
 
     mc = app.mc
     mc.delete("top_drinks")
     mc.delete("other_drinks")
     mc.delete("available_drink_list")
-    return json.dumps({ 'error' : "" })
+    return json.dumps({'error': ""})

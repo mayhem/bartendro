@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 from bartendro import db
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy import Table, Column, Integer, String, MetaData, UnicodeText, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+
 
 class BoozeGroup(db.Model):
     """
@@ -14,21 +14,19 @@ class BoozeGroup(db.Model):
     id = Column(Integer, primary_key=True)
     abstract_booze_id = Column(Integer, ForeignKey('booze.id'), nullable=False)
     name = Column(UnicodeText, nullable=False)
- 
+
     query = db.session.query_property()
 
-    def __init__(self, name = u''):
+    def __init__(self, name=''):
         self.name = name
         db.session.add(self)
 
     def json(self):
-        return { 
-                 'id' : self.id, 
-                 'name' : self.name,
-               }
+        return {
+            'id': self.id,
+            'name': self.name,
+        }
 
     def __repr__(self):
-        return "<BoozeGroup(%d,<Booze>(%d),'%s',%s)>" % (self.id or -1, 
-                                                      self.abstract_booze_id,
-                                                      self.name,
-                                                      " ".join(["<BoozeGroupBooze>(%d)" % (bgb.id or -1) for bgb in self.booze_group_boozes]))
+        return "<BoozeGroup(%d,<Booze>(%d),'%s',%s)>" % (self.id or -1, self.abstract_booze_id, self.name, " ".join(
+            ["<BoozeGroupBooze>(%d)" % (bgb.id or -1) for bgb in self.booze_group_boozes]))

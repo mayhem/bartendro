@@ -3,7 +3,9 @@
 import sys
 from time import sleep
 
+
 class GPIO(object):
+
     def __init__(self, pin):
         self.pin = pin
 

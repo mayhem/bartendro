@@ -1,17 +1,16 @@
-#!/usr/bin/env python
-
 import sys
 import logging
 from time import sleep
 try:
     import RPi.GPIO as gpio
     gpio_missing = 0
-except ImportError, e:
+except ImportError as e:
     if e.message != 'No module named RPi.GPIO':
         raise
     gpio_missing = 1
 
-log= logging.getLogger('bartendro')
+log = logging.getLogger('bartendro')
+
 
 class StatusLED(object):
 
@@ -46,7 +45,7 @@ class StatusLED(object):
             gpio.output(self.red, gpio.HIGH)
         else:
             gpio.output(self.red, gpio.LOW)
-            
+
         if green:
             gpio.output(self.green, gpio.HIGH)
         else:

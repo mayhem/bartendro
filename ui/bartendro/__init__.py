@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
 import os
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
 from sqlalchemy.orm import mapper, relationship, backref
 
 SQLALCHEMY_DATABASE_FILE = 'bartendro.db'
@@ -15,9 +13,9 @@ STATIC_FOLDER = "content/static"
 TEMPLATE_FOLDER = "content/templates"
 
 app = Flask(__name__,
-            static_url_path = STATIC_PATH,
-            static_folder = os.path.join("..", STATIC_FOLDER),
-            template_folder = os.path.join("..", TEMPLATE_FOLDER))
+            static_url_path=STATIC_PATH,
+            static_folder=os.path.join("..", STATIC_FOLDER),
+            template_folder=os.path.join("..", TEMPLATE_FOLDER))
 app.config.from_object(__name__)
 db = SQLAlchemy(app)
 
@@ -67,8 +65,9 @@ from bartendro.view.drink import drink
 from bartendro.view.ws import booze as ws_booze, dispenser as ws_dispenser, drink as ws_drink, \
                               misc as ws_misc, liquidlevel, option as ws_options
 
+
 @app.before_request
 def before_request(exception=None):
     if not app.startup_err or request.path.startswith("/static"):
         return
-    return render_template("startup_error", startup_err = app.startup_err)
+    return render_template("startup_error", startup_err=app.startup_err)

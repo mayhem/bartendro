@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import logging
 from bartendro import app, db
 from bartendro.model.option import Option
@@ -8,32 +7,35 @@ from sqlalchemy.exc import OperationalError
 log = logging.getLogger('bartendro')
 
 bartendro_options = {
-    u'use_liquid_level_sensors': False,
-    u'must_login_to_dispense'  : False,
-    u'login_name'              : u"bartendro",
-    u'login_passwd'            : u"boozemeup",
-    u'metric'                  : False,
-    u'drink_size'              : 150,
-    u'taster_size'             : 30,
-    u'shot_size'               : 30,
-    u'test_dispense_ml'        : 10,
-    u'show_strength'           : True,
-    u'show_size'               : True,
-    u'show_taster'             : False,
-    u'strength_steps'          : 2,
-    u'use_shotbot_ui'          : False,
-    u'show_feeling_lucky'      : False,
-    u'turbo_mode'              : False
+    'use_liquid_level_sensors': False,
+    'must_login_to_dispense': False,
+    'login_name': "bartendro",
+    'login_passwd': "boozemeup",
+    'metric': False,
+    'drink_size': 150,
+    'taster_size': 30,
+    'shot_size': 30,
+    'test_dispense_ml': 10,
+    'show_strength': True,
+    'show_size': True,
+    'show_taster': False,
+    'strength_steps': 2,
+    'use_shotbot_ui': False,
+    'show_feeling_lucky': False,
+    'turbo_mode': False
 }
+
 
 class BadConfigOptionsError(Exception):
     pass
+
 
 class Options(object):
     '''A simple placeholder for options'''
 
     def add(self, key, value):
         self.__attr__
+
 
 def setup_options_table():
     '''Check to make sure the options table is present'''
@@ -42,7 +44,6 @@ def setup_options_table():
         log.info("Creating options table")
         option = Option()
         option.__table__.create(db.engine)
-
 
     # Try and see if we have a legacy config.py kicking around. If so,
     # import the options and save them in the DB
@@ -80,6 +81,7 @@ def setup_options_table():
         shot_log = ShotLog()
         shot_log.__table__.create(db.engine)
 
+
 def load_options():
     '''Load options from the db and make them into a nice an accessible modules'''
 
@@ -89,11 +91,11 @@ def load_options():
     for o in db.session.query(Option).all():
         try:
             if isinstance(bartendro_options[o.key], int):
-               value = int(o.value)
-            elif isinstance(bartendro_options[o.key], unicode):
-               value = unicode(o.value)
+                value = int(o.value)
+            elif isinstance(bartendro_options[o.key], str):
+                value = str(o.value)
             elif isinstance(bartendro_options[o.key], boolean):
-               value = boolean(o.value)
+                value = boolean(o.value)
             else:
                 raise BadConfigOptionsError
         except KeyError:

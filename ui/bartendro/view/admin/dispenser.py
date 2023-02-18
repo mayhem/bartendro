@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
 from sqlalchemy import func, asc
 import memcache
 from bartendro import app, db
 from flask import Flask, request, redirect, render_template
-from flask.ext.login import login_required
+from flask_login import login_required
 from wtforms import Form, SelectField, IntegerField, validators
 from bartendro.model.drink import Drink
 from bartendro.model.booze import Booze
@@ -13,6 +12,7 @@ from bartendro.mixer import CALIBRATE_ML
 from operator import itemgetter
 from bartendro import fsm
 from bartendro.mixer import LL_OK
+
 
 @app.route('/admin')
 @login_required
@@ -38,12 +38,12 @@ def dispenser():
 
     kwargs = {}
     fields = []
-    for i in xrange(1, 17):
+    for i in range(1, 17):
         dis = "dispenser%d" % i
         actual = "actual%d" % i
-        setattr(F, dis, SelectField("%d" % i, choices=sorted_booze_list)) 
+        setattr(F, dis, SelectField("%d" % i, choices=sorted_booze_list))
         setattr(F, actual, IntegerField(actual, [validators.NumberRange(min=1, max=100)]))
-        kwargs[dis] = "1" # string of selected booze
+        kwargs[dis] = "1"  # string of selected booze
         fields.append((dis, actual))
 
     form = F(**kwargs)
@@ -70,11 +70,12 @@ def dispenser():
         state = "Bartendro is in bad state: %d" % bstate
 
     avail_drinks = app.mixer.get_available_drink_list()
-    return render_template("admin/dispenser", 
+    return render_template("admin/dispenser",
                            title="Dispensers",
-                           calibrate_ml=CALIBRATE_ML, 
-                           form=form, count=count, 
-                           fields=fields, 
+                           calibrate_ml=CALIBRATE_ML,
+                           form=form,
+                           count=count,
+                           fields=fields,
                            saved=saved,
                            state=state,
                            error=error,
@@ -83,6 +84,7 @@ def dispenser():
                            options=app.options,
                            dispenser_version=driver.dispenser_version,
                            states=states)
+
 
 @app.route('/admin/save', methods=['POST'])
 @login_required

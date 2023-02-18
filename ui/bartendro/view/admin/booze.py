@@ -1,12 +1,12 @@
-# -*- coding: utf-8 -*-
 from bartendro import app, db
 from sqlalchemy import func, asc
 from flask import Flask, request, redirect, render_template
-from flask.ext.login import login_required
+from flask_login import login_required
 from bartendro.model.drink import Drink
 from bartendro.model.booze import Booze
 from bartendro.model.booze_group import BoozeGroup
 from bartendro.form.booze import BoozeForm
+
 
 @app.route('/admin/booze')
 @login_required
@@ -14,6 +14,7 @@ def admin_booze():
     form = BoozeForm(request.form)
     boozes = Booze.query.order_by(asc(func.lower(Booze.name)))
     return render_template("admin/booze", options=app.options, boozes=boozes, form=form, title="Booze")
+
 
 @app.route('/admin/booze/edit/<id>')
 @login_required
@@ -23,6 +24,7 @@ def admin_booze_edit(id):
     form = BoozeForm(obj=booze)
     boozes = Booze.query.order_by(asc(func.lower(Booze.name)))
     return render_template("admin/booze", options=app.options, booze=booze, boozes=boozes, form=form, title="Booze", saved=saved)
+
 
 @app.route('/admin/booze/save', methods=['POST'])
 @login_required

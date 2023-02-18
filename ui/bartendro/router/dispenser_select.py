@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 import sys
 import os
 import logging
@@ -8,24 +6,23 @@ from bartendro.error import BartendroBrokenError
 from bartendro import app
 from bartendro import fsm
 
-ROUTER_BUS              = 1
-ROUTER_ADDRESS          = 4
+ROUTER_BUS = 1
+ROUTER_ADDRESS = 4
 ROUTER_SELECT_CMD_BEGIN = 0
-ROUTER_CMD_SYNC_ON      = 251
-ROUTER_CMD_SYNC_OFF     = 252
-ROUTER_CMD_PING         = 253
-ROUTER_CMD_COUNT        = 254
-ROUTER_CMD_RESET        = 255
+ROUTER_CMD_SYNC_ON = 251
+ROUTER_CMD_SYNC_OFF = 252
+ROUTER_CMD_PING = 253
+ROUTER_CMD_COUNT = 254
+ROUTER_CMD_RESET = 255
 
 log = logging.getLogger('bartendro')
 
 try:
     import smbus
     smbus_missing = 0
-except ImportError, e:
-    if e.message != 'No module named smbus':
-        raise
+except ModuleNotFoundError as e:
     smbus_missing = 1
+
 
 class DispenserSelect(object):
     '''This object interacts with the bartendro router controller to select dispensers'''
@@ -35,12 +32,12 @@ class DispenserSelect(object):
         self.max_dispensers = max_dispensers
         self.router = None
         self.num_dispensers = 3
-        self.selected = 255 
+        self.selected = 255
 
     def _write_byte_with_retry(self, address, byte):
         try:
             self.router.write_byte(address, byte)
-        except IOError, e:
+        except IOError as e:
             # if we get an error, try again, just once
             try:
                 log.error("*** router send: error while sending. Retrying. " + repr(e))
@@ -96,6 +93,7 @@ class DispenserSelect(object):
             app.globals.set_state(fsm.STATE_ERROR)
             raise BartendroBrokenError("Cannot open I2C interface.")
         log.info("Done.")
+
 
 if __name__ == "__main__":
     ds = DispenserSelect(15, 0)
