@@ -7,13 +7,15 @@ from flask import Flask, current_app
 from flask_sqlalchemy import SQLAlchemy
 import memcache
 from sqlalchemy.orm import mapper, relationship, backref
+from sqlalchemy import text
 from bartendro import db, app
 from bartendro import fsm
 from bartendro.clean import CleanCycle
 from bartendro.pourcomplete import PourCompleteDelay
 from bartendro.router.driver import MOTOR_DIRECTION_FORWARD
 from bartendro.model.drink import Drink
-from bartendro.model.booze import BOOZE_TYPE_EXTERNAL
+from bartendro.model.booze import BOOZE_TYPE_EXTERNAL, Booze
+from bartendro.model.booze_group import BoozeGroup
 from bartendro.model.dispenser import Dispenser
 from bartendro.model.drink_log import DrinkLog
 from bartendro.model.shot_log import ShotLog
@@ -409,28 +411,28 @@ class Mixer(object):
         if can_make:
             return can_make
 
-        add_boozes = db.session.query("abstract_booze_id") \
-                            .from_statement("""SELECT bg.abstract_booze_id 
+        add_boozes = db.session.query(BoozeGroup.abstract_booze_id) \
+                       .from_statement(text("""SELECT bg.abstract_booze_id 
                                                  FROM booze_group bg 
                                                 WHERE id 
                                                    IN (SELECT distinct(bgb.booze_group_id) 
                                                          FROM booze_group_booze bgb, dispenser 
-                                                        WHERE bgb.booze_id = dispenser.booze_id)""")
+                                                        WHERE bgb.booze_id = dispenser.booze_id)"""))
 
         if app.options.use_liquid_level_sensors:
             sql = "SELECT booze_id FROM dispenser WHERE out == 1 or out == 2 ORDER BY id LIMIT :d"
         else:
             sql = "SELECT booze_id FROM dispenser ORDER BY id LIMIT :d"
 
-        boozes = db.session.query("booze_id") \
-                        .from_statement(sql) \
+        boozes = db.session.query(Booze.id) \
+                        .from_statement(text(sql)) \
                         .params(d=self.disp_count).all()
         boozes.extend(add_boozes)
 
         # Load whatever external boozes we have and add them to this list
         sql = "SELECT id FROM booze WHERE type = :d"
-        ext_boozes = db.session.query("id") \
-                        .from_statement(sql) \
+        ext_boozes = db.session.query(Booze.id) \
+                        .from_statement(text(sql)) \
                         .params(d=BOOZE_TYPE_EXTERNAL).all()
         boozes.extend(ext_boozes)
 
@@ -438,8 +440,12 @@ class Mixer(object):
         for booze_id in boozes:
             booze_dict[booze_id[0]] = 1
 
-        drinks = db.session.query("drink_id", "booze_id") \
-                        .from_statement("SELECT d.id AS drink_id, db.booze_id AS booze_id FROM drink d, drink_booze db WHERE db.drink_id = d.id ORDER BY d.id, db.booze_id") \
+        drinks = db.session.query(Drink.id, Booze.id) \
+                        .from_statement(text("""SELECT d.id AS drink_id
+                                                     , db.booze_id AS booze_id
+                                                  FROM drink d, drink_booze db
+                                                 WHERE db.drink_id = d.id
+                                              ORDER BY d.id, db.booze_id""")) \
                         .all()
         last_drink = -1
         boozes = []
