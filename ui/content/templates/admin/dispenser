@@ -38,11 +38,31 @@
                             {% endif %}
                             </span>
                             {{ form["dispenser%s" % i](class="form select-field") }}
-                            <a class="btn btn-large btn-success motor-button" id="disp{{ i }}" onclick="toggle_forward({{ i }})">forward</a>
+                            <a class="btn btn-large btn-success motor-button" id="disp{{ i }}"
+                               style="vertical-align: top;" onclick="toggle_forward({{ i }})">forward</a>
                             {% if dispenser_version > 2 %}
-                                <a class="btn btn-large btn-success motor-button" id="disp_reverse{{ i }}" onclick="toggle_reverse({{ i }})">reverse</a>
+                                <a class="btn btn-large btn-success motor-button" id="disp_reverse{{ i }}"
+                                   style="vertical-align: top;" onclick="toggle_reverse({{ i }})">reverse</a>
                             {% endif %}
-                            <a class="btn btn-large btn-success test-dispense-button" id="test{{ i }}" onclick="test_dispense({{ i }})">dispense {{ options.test_dispense_ml }}ml</a>
+                            <a class="btn btn-large btn-success test-dispense-button" id="test{{ i }}"
+                               style="vertical-align: top;"  onclick="test_dispense({{ i }})">dispense {{ options.test_dispense_ml }}ml</a>
+                            <select class="select-field" type="select" id="bottle_actual{{ i }}"
+                                   style="vertical-align: top; width: 6em;">
+                              <option value="v100">100%</option>
+                              <option value="v90">90%</option>
+                              <option value="v80">80%</option>
+                              <option value="v70">70%</option>
+                              <option value="v60">60%</option>
+                              <option value="v50">50%</option>
+                              <option value="v50">50%</option>
+                              <option value="v40">40%</option>
+                              <option value="v30">30%</option>
+                              <option value="v20">20%</option>
+                              <option value="v10">10%</option>
+                            </select> of
+                            <input class="form-control" type="text" id="bottle_size{{ i }}" style="width: 5em; height: 35px"> ml
+                            <a class="btn btn-large btn-alert mark-full-button" id="mark_full{{ i }}"
+                               style="vertical-align: top;" onclick="">mark full</a>
                         </div>
                     {% endfor %}
                     <div class="div-spacer">
