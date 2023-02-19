@@ -36,20 +36,25 @@ def dispenser():
     else:
         states = [LL_OK for dispenser in dispensers]
 
+    percentages = [ "%d%%" % i for i in range(10, 110, 10) ]
+    percentages.reverse()
     kwargs = {}
     fields = []
     for i in range(1, 17):
         dis = "dispenser%d" % i
         actual = "actual%d" % i
+        bottle_size = "size%d" % i
         setattr(F, dis, SelectField("%d" % i, choices=sorted_booze_list))
-        setattr(F, actual, IntegerField(actual, [validators.NumberRange(min=1, max=100)]))
+        setattr(F, actual, SelectField("%d" % i, choices=percentages))
+        setattr(F, bottle_size, IntegerField(bottle_size, [validators.NumberRange(min=1, max=10000)]))
         kwargs[dis] = "1"  # string of selected booze
-        fields.append((dis, actual))
+        fields.append((dis, actual, bottle_size))
 
     form = F(**kwargs)
     for i, dispenser in enumerate(dispensers):
         form["dispenser%d" % (i + 1)].data = "%d" % booze_list[dispenser.booze_id - 1][0]
         form["actual%d" % (i + 1)].data = dispenser.actual
+        form["size%d" % (i + 1)].data = dispenser.bottle_size
 
     bstate = app.globals.get_state()
     error = False
@@ -98,7 +103,8 @@ def save():
         for dispenser in dispensers:
             try:
                 dispenser.booze_id = request.form['dispenser%d' % dispenser.id]
-                #dispenser.actual = request.form['actual%d' % dispenser.id]
+                dispenser.bottle_size = request.form['size%d' % dispenser.id]
+                dispenser.actual = request.form['actual%d' % dispenser.id]
             except KeyError:
                 continue
         db.session.commit()

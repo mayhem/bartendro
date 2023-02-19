@@ -24,6 +24,14 @@
               </div>
               <div id="dispensers">
                  <form method="POST" action="/admin/save">
+                     <datalist id="bottle-sizes">
+                        <option value="1750">
+                        <option value="1000">
+                        <option value="750">
+                        <option value="700">
+                        <option value="500">
+                        <option value="250">
+                     </datalist>
                      {% for i in range(1, count + 1) %}
                         <div style="padding-bottom: 10px;">
                             {% if states[i-1] == 0 %}
@@ -38,6 +46,10 @@
                             {% endif %}
                             </span>
                             {{ form["dispenser%s" % i](class="form select-field") }}
+                            {{ form["actual%s" % i](class="form select-field input-small", style="height: 44px") }} of 
+                            {{ form["size%s" % i](class="form input-small", style="height: 35px", list="bottle-sizes") }} mm
+                            <a class="btn btn-large btn-alert mark-full-button" id="mark_full{{ i }}"
+                               style="vertical-align: top;" onclick="mark_full({{ i }})">mark full</a>
                             <a class="btn btn-large btn-success motor-button" id="disp{{ i }}"
                                style="vertical-align: top;" onclick="toggle_forward({{ i }})">forward</a>
                             {% if dispenser_version > 2 %}
@@ -46,23 +58,6 @@
                             {% endif %}
                             <a class="btn btn-large btn-success test-dispense-button" id="test{{ i }}"
                                style="vertical-align: top;"  onclick="test_dispense({{ i }})">dispense {{ options.test_dispense_ml }}ml</a>
-                            <select class="select-field" type="select" id="bottle_actual{{ i }}"
-                                   style="vertical-align: top; width: 6em;">
-                              <option value="v100">100%</option>
-                              <option value="v90">90%</option>
-                              <option value="v80">80%</option>
-                              <option value="v70">70%</option>
-                              <option value="v60">60%</option>
-                              <option value="v50">50%</option>
-                              <option value="v50">50%</option>
-                              <option value="v40">40%</option>
-                              <option value="v30">30%</option>
-                              <option value="v20">20%</option>
-                              <option value="v10">10%</option>
-                            </select> of
-                            <input class="form-control" type="text" id="bottle_size{{ i }}" style="width: 5em; height: 35px"> ml
-                            <a class="btn btn-large btn-alert mark-full-button" id="mark_full{{ i }}"
-                               style="vertical-align: top;" onclick="">mark full</a>
                         </div>
                     {% endfor %}
                     <div class="div-spacer">
@@ -404,6 +399,10 @@ function clean(url)
                          { text: "Cancel", click: function() { $( this ).dialog( "close" ); } }
                        ] 
     });
+}
+function mark_full(dispenser)
+{
+    $("#actual" + dispenser).val("100%"); 
 }
 </script>
 {% endblock %}

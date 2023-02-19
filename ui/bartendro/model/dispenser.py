@@ -14,6 +14,7 @@ class Dispenser(db.Model):
     booze_id = Column(Integer, ForeignKey('booze.id'), nullable=False)
     actual = Column(Integer, default=0)
     out = Column(Integer, default=0)
+    bottle_size = Column(Integer, default=750)
 
     query = db.session.query_property()
 
