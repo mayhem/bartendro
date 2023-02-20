@@ -321,14 +321,7 @@ class Mixer(object):
             if not found:
                 raise BartendroCantPourError("Cannot make drink. I don't have the required booze: %d" % booze_id)
 
-        self._dispense_recipe(recipe)
-
-        # Decrement booze levels according to what was just dispensed
-        for dispenser_index in recipe:
-            print(dispensers[dispenser_index].actual)
-            dispensers[dispenser_index].actual -= recipe[dispenser_index]
-            db.session.add(dispensers[dispenser_index])
-        db.session.commit()
+        self._dispense_recipe(dispensers, recipe)
 
         if self.recipe.drink:
             log.info("Made cocktail: %s" % self.recipe.drink.name.name)
@@ -350,7 +343,7 @@ class Mixer(object):
         for i in range(self.disp_count):
             if booze_id == dispensers[i].booze_id:
                 recipe[i] = ml
-                self._dispense_recipe(recipe, True)
+                self._dispense_recipe(dispensers, recipe, True)
                 break
 
         return fsm.EVENT_POUR_DONE
@@ -538,7 +531,7 @@ class Mixer(object):
 
         return ll_state
 
-    def _dispense_recipe(self, recipe, always_fast=False):
+    def _dispense_recipe(self, dispensers, recipe, always_fast=False):
 
         active_disp = []
         for disp in recipe:
@@ -576,6 +569,14 @@ class Mixer(object):
                     break
 
                 sleep(.1)
+
+        # Decrement booze levels according to what was just dispensed
+        for dispenser_index in recipe:
+            print(dispensers[dispenser_index].actual)
+            dispensers[dispenser_index].actual -= recipe[dispenser_index]
+            db.session.add(dispensers[dispenser_index])
+        db.session.commit()
+
 
     def _can_make_drink(self, boozes, booze_dict):
         ok = True

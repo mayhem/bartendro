@@ -305,6 +305,8 @@ function test_dispense(disp)
 
                  test_running = -1;
                  update_button_states();
+    
+                 $("#actual" + disp).val($("#actual" + disp).val() - {{ options.test_dispense_ml }});
             },
             error: function(xmlhttp, txtStatus, errorThrown)
             {
