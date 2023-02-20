@@ -36,8 +36,6 @@ def dispenser():
     else:
         states = [LL_OK for dispenser in dispensers]
 
-    percentages = [ "%d%%" % i for i in range(10, 110, 10) ]
-    percentages.reverse()
     kwargs = {}
     fields = []
     for i in range(1, 17):
@@ -45,7 +43,7 @@ def dispenser():
         actual = "actual%d" % i
         bottle_size = "size%d" % i
         setattr(F, dis, SelectField("%d" % i, choices=sorted_booze_list))
-        setattr(F, actual, SelectField("%d" % i, choices=percentages))
+        setattr(F, actual, IntegerField(actual, [validators.NumberRange(min=1, max=10000)]))
         setattr(F, bottle_size, IntegerField(bottle_size, [validators.NumberRange(min=1, max=10000)]))
         kwargs[dis] = "1"  # string of selected booze
         fields.append((dis, actual, bottle_size))

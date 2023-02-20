@@ -279,8 +279,8 @@ class Mixer(object):
         recipe = {}
         size = 0
         log_lines = {}
-        sql = "SELECT id FROM booze WHERE type = :d"
-        ext_booze_list = db.session.query("id") \
+        sql = text("SELECT id FROM booze WHERE type = :d")
+        ext_booze_list = db.session.query(Booze.id) \
                         .from_statement(sql) \
                         .params(d=BOOZE_TYPE_EXTERNAL).all()
         ext_boozes = {}
@@ -322,6 +322,13 @@ class Mixer(object):
                 raise BartendroCantPourError("Cannot make drink. I don't have the required booze: %d" % booze_id)
 
         self._dispense_recipe(recipe)
+
+        # Decrement booze levels according to what was just dispensed
+        for dispenser_index in recipe:
+            print(dispensers[dispenser_index].actual)
+            dispensers[dispenser_index].actual -= recipe[dispenser_index]
+            db.session.add(dispensers[dispenser_index])
+        db.session.commit()
 
         if self.recipe.drink:
             log.info("Made cocktail: %s" % self.recipe.drink.name.name)

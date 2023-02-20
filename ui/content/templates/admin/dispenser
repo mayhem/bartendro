@@ -46,10 +46,11 @@
                             {% endif %}
                             </span>
                             {{ form["dispenser%s" % i](class="form select-field") }}
-                            {{ form["actual%s" % i](class="form select-field input-small", style="height: 44px") }} of 
+                            {{ form["actual%s" % i](class="form input-small", style="height: 44px") }} of 
                             {{ form["size%s" % i](class="form input-small", style="height: 35px", list="bottle-sizes") }} mm
                             <a class="btn btn-large btn-alert mark-full-button" id="mark_full{{ i }}"
-                               style="vertical-align: top;" onclick="mark_full({{ i }})">mark full</a>
+                               style="vertical-align: top;" onclick="mark_full({{ i }})">
+                               mark full</a>
                             <a class="btn btn-large btn-success motor-button" id="disp{{ i }}"
                                style="vertical-align: top;" onclick="toggle_forward({{ i }})">forward</a>
                             {% if dispenser_version > 2 %}
@@ -402,7 +403,7 @@ function clean(url)
 }
 function mark_full(dispenser)
 {
-    $("#actual" + dispenser).val("100%"); 
+    $("#actual" + dispenser).val($("#size" + dispenser).val());
 }
 </script>
 {% endblock %}
