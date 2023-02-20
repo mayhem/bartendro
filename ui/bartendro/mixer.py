@@ -34,6 +34,9 @@ MAX_DISPENSE = 1000  # ml max dispense per call. Just for sanity. :)
 LIQUID_OUT_THRESHOLD = 75
 LIQUID_LOW_THRESHOLD = 120
 
+CALCULATED_LIQUID_OUT_THRESHOLD = 50
+CALCULATED_LIQUID_LOW_THRESHOLD = 250
+
 LL_OUT = 0
 LL_OK = 1
 LL_LOW = 2
@@ -218,9 +221,6 @@ class Mixer(object):
 
     def _state_pre_shot(self):
 
-        if not app.options.use_liquid_level_sensors:
-            return fsm.EVENT_LL_OK
-
         try:
             ll = self._check_liquid_levels()
         except BartendroLiquidLevelReadError:
@@ -299,7 +299,7 @@ class Mixer(object):
 
                 if booze_id == disp.booze_id:
                     # if we're out of booze, don't consider this drink
-                    if app.options.use_liquid_level_sensors and disp.out == LL_OUT:
+                    if disp.out == LL_OUT:
                         raise BartendroCantPourError("Cannot make drink: Dispenser %d is out of booze." % (i + 1))
 
                     found = True
@@ -419,11 +419,7 @@ class Mixer(object):
                                                          FROM booze_group_booze bgb, dispenser 
                                                         WHERE bgb.booze_id = dispenser.booze_id)"""))
 
-        if app.options.use_liquid_level_sensors:
-            sql = "SELECT booze_id FROM dispenser WHERE out == 1 or out == 2 ORDER BY id LIMIT :d"
-        else:
-            sql = "SELECT booze_id FROM dispenser ORDER BY id LIMIT :d"
-
+        sql = "SELECT booze_id FROM dispenser WHERE out == 1 or out == 2 ORDER BY id LIMIT :d"
         boozes = db.session.query(Booze.id) \
                         .from_statement(text(sql)) \
                         .params(d=self.disp_count).all()
@@ -474,7 +470,7 @@ class Mixer(object):
             and set the machine state accordingly. """
 
         if not app.options.use_liquid_level_sensors:
-            return LL_OK
+            return self._check_calculated_levels()
 
         ll_state = LL_OK
 
@@ -528,6 +524,50 @@ class Mixer(object):
             self.mc.delete("available_drink_list")
 
         log.info("Checking levels done. New state: %d" % ll_state)
+
+        return ll_state
+
+
+    def _check_calculated_levels(self):
+        """ Instead of using liquid level sensors, use calculated levels. """
+
+        ll_state = LL_OK
+
+        dispensers = db.session.query(Dispenser).order_by(Dispenser.id).all()
+
+        clear_cache = False
+        for i, dispenser in enumerate(dispensers):
+            if i >= self.disp_count:
+                break
+
+            if dispenser.actual <= CALCULATED_LIQUID_OUT_THRESHOLD:
+                ll_state = LL_OUT
+                if dispenser.out != LL_OUT:
+                    clear_cache = True
+                dispenser.out = LL_OUT
+
+            elif dispenser.actual <= CALCULATED_LIQUID_LOW_THRESHOLD:
+                if ll_state == LL_OK:
+                    ll_state = LL_LOW
+
+                if dispenser.out == LL_OUT:
+                    clear_cache = True
+                dispenser.out = LL_LOW
+
+            else:
+                if dispenser.out == LL_OUT:
+                    clear_cache = True
+
+                dispenser.out = LL_OK
+
+        db.session.commit()
+
+        if clear_cache:
+            self.mc.delete("top_drinks")
+            self.mc.delete("other_drinks")
+            self.mc.delete("available_drink_list")
+
+        log.info("Calculated levels done. New state: %d" % ll_state)
 
         return ll_state
 
