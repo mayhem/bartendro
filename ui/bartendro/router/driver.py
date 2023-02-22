@@ -160,7 +160,7 @@ class RouterDriver(object):
         self.dispenser_select.reset()
 
         # This primes the communication line.
-        self.ser.write(bytes(chr(170) + chr(170) + chr(170), "utf-8"))
+        self.ser.write(bytearray((170, 170, 170)))
         sleep(.001)
 
         log.info("Discovering dispensers")
@@ -171,7 +171,7 @@ class RouterDriver(object):
             sleep(.01)
             while True:
                 self.ser.flushInput()
-                self.ser.write(bytes("???", "utf-8"))
+                self.ser.write(bytearray((63, 63, 63)))
                 data = self.ser.read(3)
                 ll = ""
                 for ch in data:
@@ -199,7 +199,7 @@ class RouterDriver(object):
 
         self._select(0)
         self.set_timeout(DEFAULT_TIMEOUT)
-        self.ser.write(bytes(chr(255), "utf-8"))
+        self.ser.write(bytearray((255,)))
 
         duplicate_ids = [x for x, y in list(collections.Counter(self.dispenser_ids).items()) if y > 1]
         if len(duplicate_ids):
@@ -384,7 +384,6 @@ class RouterDriver(object):
     def get_dispenser_version(self, dispenser):
         if self.software_only: return DISPENSER_DEFAULT_VERSION_SOFTWARE_ONLY
         if self._send_packet8(dispenser, PACKET_GET_VERSION, 0):
-            print("Send packet ok for dispenser disc")
             # set a short timeout, in case its a v2 dispenser
             self.set_timeout(.1)
             ack, ver, dummy = self._receive_packet16(True)
@@ -468,8 +467,7 @@ class RouterDriver(object):
 
         try:
             t0 = time()
-            written = self.ser.write(b"\xFF\xFF" + encoded)
-            self.dump_hex(b"\xFF\xFF" + encoded)
+            written = self.ser.write(bytearray((255, 255)) + encoded)
             if written != RAW_PACKET_SIZE + 2:
                 log.error("*** send timeout")
                 log.error("*** dispenser: %d, type: %s" % (dest + 1, str(packet[1:2], "ascii")))
@@ -491,7 +489,6 @@ class RouterDriver(object):
 
         ack = ch
         if ack == PACKET_ACK_OK:
-            print("Packet ack'ed ok.")
             return True
         if ack == PACKET_CRC_FAIL:
             log.error("*** send_packet: packet ack crc fail")
@@ -561,7 +558,7 @@ class RouterDriver(object):
                     log.error("receive packet: response timeout")
                 return (PACKET_ACK_TIMEOUT, "")
 
-            if (ch == 0xFF):
+            if (ch == b"\xFF"):
                 header += 1
             else:
                 header = 0
@@ -597,9 +594,10 @@ class RouterDriver(object):
                     ack = PACKET_ACK_CRC_FAIL
 
         # Send the response back to the dispenser
-        if self.ser.write(chr(ack)) != 1:
+        written = self.ser.write(ack)
+        if written != 1:
             if not quiet:
-                log.error("receive_packet: Send ack timeout!")
+                log.error("receive_packet: wrote %s bytes response" % written)
             ack = PACKET_ACK_TIMEOUT
 
         if ack == PACKET_ACK_OK:
