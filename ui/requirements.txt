@@ -1,3 +1,4 @@
+RPi.GPIO
 werkzeug
 jinja2
 wtforms
@@ -7,3 +8,4 @@ flask
 flask-login
 flask-sqlalchemy
 pyserial
+smbus
