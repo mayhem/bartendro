@@ -48,7 +48,7 @@ class DispenserSelect(object):
 
     def reset(self):
         if self.software_only: return
-        self._write_byte_with_retry(ROUTER_ADDRESS, ROUTER_CMD_RESET)
+        #self._write_byte_with_retry(ROUTER_ADDRESS, ROUTER_CMD_RESET)
         sleep(.15)
 
     def select(self, dispenser):
