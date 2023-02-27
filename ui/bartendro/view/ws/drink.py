@@ -113,6 +113,7 @@ def drink_load(id):
 def ws_drink_save(drink):
 
     data = request.json['drink']
+    print(json.dumps(data, indent=4, sort_keys=True))
     id = int(data["id"] or 0)
     if id > 0:
         drink = Drink.query.filter_by(id=int(id)).first()
@@ -134,16 +135,17 @@ def ws_drink_save(drink):
         else:
             drink.available = False
     except ValueError:
-        raise BadRequest
+        raise BadRequest("Missing one or more data elements of name, desc, popular, available")
 
     for selected_booze_id, parts, old_booze_id in data['boozes']:
+        # Convert input from strings to ints
         try:
             selected_booze_id = int(selected_booze_id)  # this is the id that comes from the most recent selection
             old_booze_id = int(old_booze_id)  # this id is the id that was previously used by this slot. Used for
             # cleaning up or updateing existing entries
-            parts = int(parts)
-        except ValueError:
-            raise BadRequest
+            parts = int(parts or "0")
+        except ValueError as err:
+            raise BadRequest(err)
 
         # if the parts are set to zero, remove this drink_booze from this drink
         if parts == 0:
@@ -165,7 +167,8 @@ def ws_drink_save(drink):
         else:
             # Create a new drink-booze entry
             booze = Booze.query.filter_by(id=selected_booze_id).first()
-            DrinkBooze(drink, booze, parts, 0)
+            drink_booze = DrinkBooze(drink, booze, parts, 0)
+            db.session.add(drink_booze)
 
     db.session.commit()
     mc = app.mc

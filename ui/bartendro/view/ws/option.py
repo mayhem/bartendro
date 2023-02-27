@@ -9,6 +9,7 @@ from bartendro import app, db, mixer
 from flask import Flask, request
 from flask_login import login_required, logout_user
 from werkzeug.exceptions import InternalServerError, BadRequest
+from sqlalchemy import text
 from bartendro.model.option import Option
 from bartendro.options import bartendro_options
 
@@ -78,7 +79,7 @@ def ws_upload():
     try:
         con = sqlite3.connect(file_name)
         cur = con.cursor()
-        cur.execute("SELECT * FROM dispenser")
+        cur.execute(text("SELECT * FROM dispenser"))
     except sqlite3.DatabaseError:
         os.unlink(file_name)
         raise BadRequest

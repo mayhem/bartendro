@@ -72,28 +72,12 @@ def drink(id, go):
     for dispenser in dispensers:
         disp_boozes[dispenser.booze_id] = 1
 
-    booze_group = db.session.query(BoozeGroup) \
-                          .join(DrinkBooze, DrinkBooze.booze_id == BoozeGroup.abstract_booze_id) \
-                          .join(BoozeGroupBooze) \
-                          .filter(Drink.id == id) \
-                          .first()
-
-    filtered = []
-    for bgb in booze_group.booze_group_boozes:
-        try:
-            dummy = disp_boozes[bgb.booze_id]
-            filtered.append(bgb)
-        except KeyError:
-            pass
-
-    booze_group.booze_group_boozes = sorted(filtered, key=lambda booze: booze.sequence ) 
     return render_template("drink/index", 
                            drink=drink, 
                            options=app.options,
                            title=drink.name.name,
                            is_custom=1,
                            custom_drink=drink.custom_drink[0],
-                           booze_group=booze_group,
                            show_sweet_tart=show_sweet_tart,
                            show_sobriety=show_sobriety,
                            can_change_strength=show_strength,
