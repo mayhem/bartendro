@@ -47,18 +47,18 @@
                             </span>
                             {{ form["dispenser%s" % i](class="form select-field") }}
                             {{ form["actual%s" % i](class="form input-small", style="height: 44px") }} of 
-                            {{ form["size%s" % i](class="form input-small", style="height: 35px", list="bottle-sizes") }} mm
+                            {{ form["size%s" % i](class="form input-small", style="height: 35px", list="bottle-sizes") }}
                             <a class="btn btn-large btn-alert mark-full-button" id="mark_full{{ i }}"
                                style="vertical-align: top;" onclick="mark_full({{ i }})">
                                mark full</a>
                             <a class="btn btn-large btn-success motor-button" id="disp{{ i }}"
-                               style="vertical-align: top;" onclick="toggle_forward({{ i }})">forward</a>
+                               style="vertical-align: top;" onclick="toggle_forward({{ i }})">fwd</a>
                             {% if dispenser_version > 2 %}
                                 <a class="btn btn-large btn-success motor-button" id="disp_reverse{{ i }}"
-                                   style="vertical-align: top;" onclick="toggle_reverse({{ i }})">reverse</a>
+                                   style="vertical-align: top;" onclick="toggle_reverse({{ i }})">rev</a>
                             {% endif %}
                             <a class="btn btn-large btn-success test-dispense-button" id="test{{ i }}"
-                               style="vertical-align: top;"  onclick="test_dispense({{ i }})">dispense {{ options.test_dispense_ml }}ml</a>
+                               style="vertical-align: top;"  onclick="test_dispense({{ i }})">disp. {{ options.test_dispense_ml }}ml</a>
                         </div>
                     {% endfor %}
                     <div class="div-spacer">
