@@ -46,8 +46,14 @@
                             {% endif %}
                             </span>
                             {{ form["dispenser%s" % i](class="form select-field") }}
-                            {{ form["actual%s" % i](class="form input-small", style="height: 44px") }} of 
-                            {{ form["size%s" % i](class="form input-small", style="height: 35px", list="bottle-sizes") }}
+                            {{ form["actual%s" % i](class="form input-small",
+                                                    style="height: 44px",
+                                                    oninput="modified(%d)" % i) }} of
+                            {{ form["size%s" % i](class="form input-small",
+                                                  style="height: 35px",
+                                                  list="bottle-sizes",
+                                                  oninput="modified()") }}
+                            {{ form["modified%s" % i]() }}
                             <a class="btn btn-large btn-alert mark-full-button" id="mark_full{{ i }}"
                                style="vertical-align: top;" onclick="mark_full({{ i }})">
                                mark full</a>
@@ -406,6 +412,12 @@ function clean(url)
 function mark_full(dispenser)
 {
     $("#actual" + dispenser).val($("#size" + dispenser).val());
+    $("#modified" + dispenser).val("1")
+}
+function modified(dispenser)
+{
+    console.log("changed " + dispenser)
+    $("#modified" + dispenser).val("1")
 }
 </script>
 {% endblock %}

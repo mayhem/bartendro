@@ -3,7 +3,7 @@ import memcache
 from bartendro import app, db
 from flask import Flask, request, redirect, render_template
 from flask_login import login_required
-from wtforms import Form, SelectField, IntegerField, validators
+from wtforms import Form, SelectField, IntegerField, validators, HiddenField
 from bartendro.model.drink import Drink
 from bartendro.model.booze import Booze
 from bartendro.model.dispenser import Dispenser
@@ -42,9 +42,11 @@ def dispenser():
         dis = "dispenser%d" % i
         actual = "actual%d" % i
         bottle_size = "size%d" % i
+        modified = "modified%d" % i
         setattr(F, dis, SelectField("%d" % i, choices=sorted_booze_list))
         setattr(F, actual, IntegerField(actual, [validators.NumberRange(min=1, max=10000)]))
         setattr(F, bottle_size, IntegerField(bottle_size, [validators.NumberRange(min=1, max=10000)]))
+        setattr(F, modified, HiddenField(default="0"))
         kwargs[dis] = "1"  # string of selected booze
         fields.append((dis, actual, bottle_size))
 
@@ -101,8 +103,9 @@ def save():
         for dispenser in dispensers:
             try:
                 dispenser.booze_id = request.form['dispenser%d' % dispenser.id]
-                dispenser.bottle_size = request.form['size%d' % dispenser.id]
-                dispenser.actual = request.form['actual%d' % dispenser.id]
+                if request.form['modified%d' % dispenser.id] != "0":
+                    dispenser.bottle_size = request.form['size%d' % dispenser.id]
+                    dispenser.actual = request.form['actual%d' % dispenser.id]
             except KeyError:
                 continue
         db.session.commit()
