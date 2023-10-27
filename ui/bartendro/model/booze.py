@@ -8,7 +8,8 @@ BOOZE_TYPE_ALCOHOL = 1
 BOOZE_TYPE_TART = 2
 BOOZE_TYPE_SWEET = 3
 BOOZE_TYPE_EXTERNAL = 4
-booze_types = [(0, "Unknown"), (1, "Alcohol"), (2, "Tart"), (3, "Sweet"), (4, "External")]
+BOOZE_TYPE_ALCOHOL_SPICY = 5
+booze_types = [(0, "Unknown"), (1, "Alcohol"), (2, "Tart"), (3, "Sweet"), (4, "External"), (5, "Spicy alcohol")]
 
 
 class Booze(db.Model):
