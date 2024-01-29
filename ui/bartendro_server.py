@@ -47,11 +47,11 @@ if os.path.exists("version.txt"):
     with open("version.txt", "r") as f:
         version = f.read()
 else:
-    version = subprocess.check_output(["git", "rev-parse", "HEAD"])
-    if version:
-        version = "git commit " + str(version[:10], "utf-8")
-    else:
-        version = "[unknown]"
+#    version = subprocess.check_output(["git", "rev-parse", "HEAD"])
+#    if version:
+#        version = "git commit " + str(version[:10], "utf-8")
+#    else:
+    version = "[unknown]"
 
 LOG_SIZE = 1024 * 500  # 500k maximum log file size
 LOG_FILES_SAVED = 3  # number of log files to compress and save

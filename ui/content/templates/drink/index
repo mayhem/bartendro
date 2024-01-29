@@ -435,7 +435,7 @@ function make_drink(drink, is_taster)
     else
         lb += 'Now serving your'
 
-    lb += '</h1><div class="lb-drink">{{ drink.name.name }}</div>';
+    lb += '</h1><div class="lb-drink">' + `{{ drink.name.name }}` + '</div>';
     lb += "</div>";
     $.modal(lb, { 'escClose' : false });
     $.ajax({
