@@ -244,7 +244,7 @@ function update_volumes()
         {
             ing[i].newparts = ing[i].parts + (ing[i].parts * .25 * -drink_tartness);
         }
-        if(ing[i].type == 4) // external
+        if(ing[i].type == 4 || ing[i].type == 0) // unknown and external
         {
             ing[i].newparts = ing[i].parts;
         }
