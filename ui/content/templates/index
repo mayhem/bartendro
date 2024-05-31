@@ -22,7 +22,7 @@
         {% endif %}
         {{ drink_table(top_drinks) }}
         <div style="clear: both"/>
-        <h1>the wild side</h1>
+        <h1>the boring side</h1>
         {{ drink_table(other_drinks) }}
     {% else %}
         <div class="row-fluid">

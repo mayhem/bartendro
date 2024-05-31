@@ -187,6 +187,7 @@ var elapsed;
 var max_x, max_y;
 var drink_to_make;
 var unit_name, unit_name_short;
+var has_external = "";
 
 $(document).ready(function() 
 {
@@ -247,6 +248,10 @@ function update_volumes()
         if(ing[i].type == 4 || ing[i].type == 0) // unknown and external
         {
             ing[i].newparts = ing[i].parts;
+        }
+        if(ing[i].type == 4) // set has_external
+        {   
+            has_external = ing[i].name;
         }
 
         total += ing[i].newparts;
@@ -436,6 +441,9 @@ function make_drink(drink, is_taster)
         lb += 'Now serving your'
 
     lb += '</h1><div class="lb-drink">' + `{{ drink.name.name }}` + '</div>';
+    if (has_external)
+        lb += '<div style="padding-top: 5px; font-size: 18pt;">Remember to add ' + has_external + '!</div>';
+
     lb += "</div>";
     $.modal(lb, { 'escClose' : false });
     $.ajax({
